@@ -3,9 +3,7 @@
 {% block content %}
 <h1>Temple Events Calendar</h1>
 
-{% if current_user.is_authenticated %}
-  <p><a class="btn" href="{{ url_for('event_new') }}">+ Add Temple Event</a></p>
-{% endif %}
+<p><a class="btn" href="{{ url_for('event_new') }}">+ Add Temple Event</a></p>
 
 {% if events %}
 <table class="event-table">
@@ -17,7 +15,7 @@
       <th>Malayalam Date</th>
       <th>Nakshatram</th>
       <th>Location</th>
-      {% if current_user.is_authenticated %}<th>Actions</th>{% endif %}
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -29,16 +27,12 @@
       <td>{% if e.malayalam_month %}{{ e.malayalam_month }} {{ e.malayalam_day or '' }}{% else %}&mdash;{% endif %}</td>
       <td>{{ e.nakshatram or '&mdash;' | safe }}</td>
       <td>{{ e.location or '&mdash;' | safe }}</td>
-      {% if current_user.is_authenticated and (current_user.id == e.user_id or current_user.is_admin) %}
       <td>
         <a href="{{ url_for('event_edit', event_id=e.id) }}">Edit</a>
         <form method="POST" action="{{ url_for('event_delete', event_id=e.id) }}" style="display:inline;" onsubmit="return confirm('Delete this event?');">
           <button type="submit" style="border:none;background:none;color:#a33;cursor:pointer;">Delete</button>
         </form>
       </td>
-      {% elif current_user.is_authenticated %}
-      <td></td>
-      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

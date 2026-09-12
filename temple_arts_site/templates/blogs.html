@@ -10,16 +10,14 @@
   {% endfor %}
 </div>
 
-{% if current_user.is_authenticated %}
-  <p style="margin-top:1rem;"><a class="btn" href="{{ url_for('blog_new') }}">+ Write a Blog</a></p>
-{% endif %}
+<p style="margin-top:1rem;"><a class="btn" href="{{ url_for('blog_new') }}">+ Write a Blog</a></p>
 
 {% if posts %}
   {% for p in posts %}
     <div class="card">
       <span class="badge">{{ p.category }}</span>
       <h3><a href="{{ url_for('blog_detail', post_id=p.id) }}">{{ p.title }}</a></h3>
-      <p class="meta">by {{ p.author.name }} on {{ p.created_at.strftime('%d %b %Y') }}</p>
+      <p class="meta">by {{ p.author_name }} on {{ p.created_at.strftime('%d %b %Y') }}</p>
     </div>
   {% endfor %}
 {% else %}

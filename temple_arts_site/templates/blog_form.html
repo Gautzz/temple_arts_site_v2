@@ -8,6 +8,9 @@
   {{ form.title() }}
   {% for err in form.title.errors %}<div class="errors">{{ err }}</div>{% endfor %}
 
+  <label>{{ form.author_name.label }}</label>
+  {{ form.author_name(placeholder="Temple Committee") }}
+
   <label>{{ form.category.label }}</label>
   {{ form.category() }}
 
