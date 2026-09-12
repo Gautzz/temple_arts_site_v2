@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<span class="badge">{{ post.category }}</span>
+<h1>{{ post.title }}</h1>
+<p class="meta">by {{ post.author.name }} &middot; {{ post.created_at.strftime('%d %b %Y') }}
+  {% if post.updated_at and post.updated_at != post.created_at %}(updated {{ post.updated_at.strftime('%d %b %Y') }}){% endif %}
+</p>
+<div class="card">
+  {{ post.content|e|replace('\n', '<br>')|safe }}
+</div>
+
+{% if current_user.is_authenticated and (current_user.id == post.user_id or current_user.is_admin) %}
+  <a class="btn secondary" href="{{ url_for('blog_edit', post_id=post.id) }}">Edit</a>
+  <form method="POST" action="{{ url_for('blog_delete', post_id=post.id) }}" style="display:inline;" onsubmit="return confirm('Delete this post?');">
+    <button class="btn danger" type="submit">Delete</button>
+  </form>
+{% endif %}
+
+<p style="margin-top:1.5rem;"><a href="{{ url_for('blogs') }}">&larr; Back to all blogs</a></p>
+{% endblock %}

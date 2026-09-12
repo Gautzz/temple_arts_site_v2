@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Home - Temple Arts & Heritage{% endblock %}
+{% block content %}
+<div class="hero hero-main">
+  <div class="hero-ornament">&#x0D3C;</div>
+  <h1>Temple Arts & Heritage</h1>
+  <p class="hero-sub">A community space to explore temple arts, rituals, and history &mdash; and to follow temple festivals by the Malayalam calendar.</p>
+  {% if not current_user.is_authenticated %}
+    <div class="hero-actions">
+      <a class="btn" href="{{ url_for('register') }}">Join the Community</a>
+      <a class="btn secondary" href="{{ url_for('blogs') }}">Explore Blogs</a>
+    </div>
+  {% else %}
+    <div class="hero-actions">
+      <a class="btn" href="{{ url_for('blog_new') }}">Write a Blog</a>
+      <a class="btn secondary" href="{{ url_for('event_new') }}">Add a Temple Event</a>
+    </div>
+  {% endif %}
+</div>
+
+<div class="feature-grid">
+  <a class="feature-card" href="{{ url_for('blogs', category='Temple Arts') }}">
+    <div class="feature-icon">&#x1F3FA;</div>
+    <h3>Temple Arts</h3>
+    <p>Murals, sculpture, and traditional craft.</p>
+  </a>
+  <a class="feature-card" href="{{ url_for('blogs', category='Rituals') }}">
+    <div class="feature-icon">&#x1F56F;&#xFE0F;</div>
+    <h3>Rituals</h3>
+    <p>Poojas, customs, and their meaning.</p>
+  </a>
+  <a class="feature-card" href="{{ url_for('blogs', category='Music & Dance') }}">
+    <div class="feature-icon">&#x1F941;</div>
+    <h3>Music & Dance</h3>
+    <p>Classical temple art forms of Kerala.</p>
+  </a>
+  <a class="feature-card" href="{{ url_for('malayalam_calendar_page') }}">
+    <div class="feature-icon">&#x1F4C5;</div>
+    <h3>Malayalam Calendar</h3>
+    <p>Temple festivals by month & nakshatram.</p>
+  </a>
+</div>
+
+<div class="section-heading">
+  <h2>Upcoming Temple Events</h2>
+  <a class="link-more" href="{{ url_for('events') }}">View all &rarr;</a>
+</div>
+{% if events %}
+  {% for e in events %}
+    <div class="card event-card">
+      <div class="event-date-badge">
+        <span class="day">{{ e.gregorian_date.strftime('%d') }}</span>
+        <span class="mon">{{ e.gregorian_date.strftime('%b') }}</span>
+      </div>
+      <div class="event-info">
+        <h3><a href="{{ url_for('events') }}">{{ e.title }}</a></h3>
+        <p class="meta">
+          {{ e.temple_name }}
+          {% if e.malayalam_month %} &middot; {{ e.malayalam_month }} {{ e.malayalam_day or '' }}{% endif %}
+          {% if e.nakshatram %} &middot; {{ e.nakshatram }} star{% endif %}
+        </p>
+        {% if e.description %}<p>{{ e.description[:150] }}{% if e.description|length > 150 %}...{% endif %}</p>{% endif %}
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <p>No upcoming events yet &mdash; be the first to share one!</p>
+    <a class="btn secondary" href="{{ url_for('event_new') }}">+ Add a Temple Event</a>
+  </div>
+{% endif %}
+
+<div class="section-heading">
+  <h2>Latest Blog Posts</h2>
+  <a class="link-more" href="{{ url_for('blogs') }}">View all &rarr;</a>
+</div>
+{% if posts %}
+  {% for p in posts %}
+    <div class="card">
+      <span class="badge">{{ p.category }}</span>
+      <h3><a href="{{ url_for('blog_detail', post_id=p.id) }}">{{ p.title }}</a></h3>
+      <p class="meta">by {{ p.author.name }} on {{ p.created_at.strftime('%d %b %Y') }}</p>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <p>No blog posts yet &mdash; share your knowledge with the community!</p>
+    <a class="btn secondary" href="{{ url_for('blog_new') }}">+ Write the First Post</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Temple Arts & Heritage{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('index') }}">Temple<span>Arts</span></a>
+    <nav class="main-nav">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('blogs') }}">Blogs</a>
+      <a href="{{ url_for('events') }}">Events</a>
+      <a href="{{ url_for('malayalam_calendar_page') }}">Malayalam Calendar</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('blog_new') }}">Write a Blog</a>
+        <a href="{{ url_for('event_new') }}">Add Event</a>
+        <a href="{{ url_for('logout') }}">Logout ({{ current_user.name }})</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    &copy; {{ 2026 }} Temple Arts & Heritage &mdash; a community knowledge base for temple arts, rituals and events.
+  </footer>
+</body>
+</html>

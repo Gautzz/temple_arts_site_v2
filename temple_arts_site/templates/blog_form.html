@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Post" if mode == "edit" else "New Post" }}{% endblock %}
+{% block content %}
+<h1>{{ "Edit Blog Post" if mode == "edit" else "Write a New Blog Post" }}</h1>
+<form class="styled" method="POST">
+  {{ form.hidden_tag() }}
+  <label>{{ form.title.label }}</label>
+  {{ form.title() }}
+  {% for err in form.title.errors %}<div class="errors">{{ err }}</div>{% endfor %}
+
+  <label>{{ form.category.label }}</label>
+  {{ form.category() }}
+
+  <label>{{ form.content.label }}</label>
+  {{ form.content() }}
+  {% for err in form.content.errors %}<div class="errors">{{ err }}</div>{% endfor %}
+
+  <p style="margin-top:1.2rem;">
+    <button class="btn" type="submit">{{ "Save Changes" if mode == "edit" else "Publish" }}</button>
+  </p>
+</form>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Blogs{% endblock %}
+{% block content %}
+<h1>Blog Posts</h1>
+
+<div class="category-filter">
+  <a href="{{ url_for('blogs') }}" class="{{ 'active' if not selected_category }}">All</a>
+  {% for cat in ["Temple Arts", "Rituals", "History", "Music & Dance", "Architecture", "General"] %}
+    <a href="{{ url_for('blogs', category=cat) }}" class="{{ 'active' if selected_category == cat }}">{{ cat }}</a>
+  {% endfor %}
+</div>
+
+{% if current_user.is_authenticated %}
+  <p style="margin-top:1rem;"><a class="btn" href="{{ url_for('blog_new') }}">+ Write a Blog</a></p>
+{% endif %}
+
+{% if posts %}
+  {% for p in posts %}
+    <div class="card">
+      <span class="badge">{{ p.category }}</span>
+      <h3><a href="{{ url_for('blog_detail', post_id=p.id) }}">{{ p.title }}</a></h3>
+      <p class="meta">by {{ p.author.name }} on {{ p.created_at.strftime('%d %b %Y') }}</p>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No blog posts in this category yet.</p>
+{% endif %}
+{% endblock %}

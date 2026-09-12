@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Malayalam Calendar{% endblock %}
+{% block content %}
+<h1>Malayalam Calendar</h1>
+<p class="meta">
+  Today ({{ today.strftime('%d %b %Y') }}) is approximately
+  <strong>{{ today_month }} {{ today_day }}</strong> in the Malayalam calendar.
+  This is an estimate &mdash; exact month-start dates shift by a day or two each
+  year because Malayalam months begin on a solar event, not a fixed Gregorian date.
+</p>
+
+<table class="event-table">
+  <thead>
+    <tr>
+      <th>Malayalam Month</th>
+      <th>Approx. Gregorian Start</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for month, (g_month, g_day) in month_rows %}
+    <tr class="{{ 'active-month' if month == today_month }}">
+      <td>{{ month }}</td>
+      <td>{{ ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][g_month] }} {{ g_day }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p style="margin-top:1.5rem;">
+  Looking for specific festival dates? Check the <a href="{{ url_for('events') }}">Temple Events</a> page,
+  where each event lists both its Gregorian and Malayalam date.
+  {% if current_user.is_authenticated %}
+    You can also <a href="{{ url_for('event_new') }}">add a new event</a> yourself.
+  {% endif %}
+</p>
+{% endblock %}

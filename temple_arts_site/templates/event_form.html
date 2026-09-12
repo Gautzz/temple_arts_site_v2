@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Event" if mode == "edit" else "New Event" }}{% endblock %}
+{% block content %}
+<h1>{{ "Edit Temple Event" if mode == "edit" else "Add a Temple Event" }}</h1>
+<p class="meta">Tip: pick the Gregorian date first and we'll suggest an approximate Malayalam month/day &mdash; please double check it against a panchangam before saving, since the auto-suggestion is only approximate.</p>
+
+<form class="styled" method="POST" id="event-form">
+  {{ form.hidden_tag() }}
+  <label>{{ form.temple_name.label }}</label>
+  {{ form.temple_name() }}
+
+  <label>{{ form.title.label }}</label>
+  {{ form.title() }}
+
+  <label>{{ form.description.label }}</label>
+  {{ form.description() }}
+
+  <label>{{ form.gregorian_date.label }}</label>
+  {{ form.gregorian_date(id="gdate") }}
+  <div class="meta" id="suggestion">{% if suggestion %}Suggested: {{ suggestion }}{% endif %}</div>
+
+  <label>{{ form.malayalam_month.label }}</label>
+  {{ form.malayalam_month() }}
+
+  <label>{{ form.malayalam_day.label }}</label>
+  {{ form.malayalam_day() }}
+  {% for err in form.malayalam_day.errors %}<div class="errors">{{ err }}</div>{% endfor %}
+
+  <label>{{ form.nakshatram.label }}</label>
+  {{ form.nakshatram() }}
+
+  <label>{{ form.location.label }}</label>
+  {{ form.location() }}
+
+  <p style="margin-top:1.2rem;">
+    <button class="btn" type="submit">{{ "Save Changes" if mode == "edit" else "Add Event" }}</button>
+  </p>
+</form>
+
+<script>
+  const gdateInput = document.getElementById("gdate");
+  const suggestionBox = document.getElementById("suggestion");
+  if (gdateInput) {
+    gdateInput.addEventListener("change", async () => {
+      if (!gdateInput.value) return;
+      try {
+        const res = await fetch(`/api/malayalam-date?date=${gdateInput.value}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        suggestionBox.textContent = `Suggested: ${data.month} ${data.day} (approximate - please verify)`;
+      } catch (e) {
+        // silently ignore
+      }
+    });
+  }
+</script>
+{% endblock %}
