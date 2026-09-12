@@ -20,6 +20,7 @@ class TempleEvent(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     gregorian_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=True)
     malayalam_month = db.Column(db.String(50))
     malayalam_day = db.Column(db.Integer)
     nakshatram = db.Column(db.String(50))

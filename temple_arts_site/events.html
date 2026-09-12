@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Temple Events{% endblock %}
+{% block content %}
+<h1>Temple Events Calendar</h1>
+
+<p><a class="btn" href="{{ url_for('event_new') }}">+ Add Temple Event</a></p>
+
+{% if events %}
+<table class="event-table">
+  <thead>
+    <tr>
+      <th>Temple</th>
+      <th>Event</th>
+      <th>Gregorian Date</th>
+      <th>Malayalam Date</th>
+      <th>Nakshatram</th>
+      <th>Location</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in events %}
+    <tr>
+      <td>{{ e.temple_name }}</td>
+      <td>{{ e.title }}</td>
+      <td>{{ e.gregorian_date.strftime('%d %b %Y') }}{% if e.end_date and e.end_date != e.gregorian_date %} &ndash; {{ e.end_date.strftime('%d %b %Y') }}{% endif %}</td>
+      <td>{% if e.malayalam_month %}{{ e.malayalam_month }} {{ e.malayalam_day or '' }}{% else %}&mdash;{% endif %}</td>
+      <td>{{ e.nakshatram or '&mdash;' | safe }}</td>
+      <td>{{ e.location or '&mdash;' | safe }}</td>
+      <td>
+        <a href="{{ url_for('event_edit', event_id=e.id) }}">Edit</a>
+        <form method="POST" action="{{ url_for('event_delete', event_id=e.id) }}" style="display:inline;" onsubmit="return confirm('Delete this event?');">
+          <button type="submit" style="border:none;background:none;color:#a33;cursor:pointer;">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p>No events added yet.</p>
+{% endif %}
+{% endblock %}

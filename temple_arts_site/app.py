@@ -125,6 +125,7 @@ def event_new():
             title=form.title.data,
             description=form.description.data,
             gregorian_date=form.gregorian_date.data,
+            end_date=form.end_date.data or None,
             malayalam_month=form.malayalam_month.data,
             malayalam_day=form.malayalam_day.data,
             nakshatram=form.nakshatram.data or None,
@@ -145,6 +146,7 @@ def event_edit(event_id):
     if form.validate_on_submit():
         form.populate_obj(event)
         event.nakshatram = form.nakshatram.data or None
+        event.end_date = form.end_date.data or None
         event.author_name = form.author_name.data or event.author_name
         db.session.commit()
         flash("Temple event updated.", "success")
