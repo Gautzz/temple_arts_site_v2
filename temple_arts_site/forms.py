@@ -1,23 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, SelectField, IntegerField, DateField
-from wtforms.validators import DataRequired, Email, Length, EqualTo, Optional, NumberRange
+from wtforms import StringField, TextAreaField, SelectField, IntegerField, DateField
+from wtforms.validators import DataRequired, Length, Optional, NumberRange
 from malayalam_calendar import MALAYALAM_MONTHS, NAKSHATRAS
-
-
-class RegisterForm(FlaskForm):
-    name = StringField("Full Name", validators=[DataRequired(), Length(max=120)])
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
-    confirm = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
-
-
-class LoginForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired()])
 
 
 class BlogPostForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired(), Length(max=200)])
+    author_name = StringField("Your Name", validators=[Optional(), Length(max=120)])
     category = SelectField(
         "Category",
         choices=[
@@ -35,6 +24,7 @@ class BlogPostForm(FlaskForm):
 class TempleEventForm(FlaskForm):
     temple_name = StringField("Temple Name", validators=[DataRequired(), Length(max=200)])
     title = StringField("Event Title", validators=[DataRequired(), Length(max=200)])
+    author_name = StringField("Your Name", validators=[Optional(), Length(max=120)])
     description = TextAreaField("Description", validators=[Optional()])
     gregorian_date = DateField("Gregorian Date", validators=[DataRequired()], format="%Y-%m-%d")
     malayalam_month = SelectField("Malayalam Month", choices=[(m, m) for m in MALAYALAM_MONTHS], validators=[Optional()])

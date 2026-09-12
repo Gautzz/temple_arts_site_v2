@@ -1,6 +1,5 @@
 """
 One-time script to seed the Temple Arts & Heritage site with:
-  - An admin account
   - A handful of starter blog posts (written from general knowledge,
     not copied from any website) covering common Kerala temple rituals,
     art forms, and festivals
@@ -9,31 +8,14 @@ One-time script to seed the Temple Arts & Heritage site with:
 Run this once after setting up the site:
     python seed_content.py
 
-Everything created here can be edited or corrected by any logged-in
-user with permission (the admin account can edit/delete anything),
-so treat this as a community starting point, not a finished reference.
+Everything created here can be edited or corrected by anyone visiting
+the site, so treat this as a community starting point, not a finished
+reference.
 """
 
 from datetime import date
 from app import app
-from models import db, User, BlogPost, TempleEvent
-
-ADMIN_EMAIL = "admin@templearts.local"
-ADMIN_PASSWORD = "ChangeMe123!"  # CHANGE THIS after first login
-
-
-def get_or_create_admin():
-    admin = User.query.filter_by(email=ADMIN_EMAIL).first()
-    if admin:
-        return admin
-    admin = User(name="Site Admin", email=ADMIN_EMAIL, is_admin=True)
-    admin.set_password(ADMIN_PASSWORD)
-    db.session.add(admin)
-    db.session.commit()
-    print(f"Created admin account: {ADMIN_EMAIL} / {ADMIN_PASSWORD}")
-    print("IMPORTANT: log in and change this password (or create your own admin) right away.")
-    return admin
-
+from models import db, BlogPost, TempleEvent
 
 BLOG_SEED = [
     {
@@ -226,7 +208,6 @@ EVENT_SEED = [
 def seed():
     with app.app_context():
         db.create_all()
-        admin = get_or_create_admin()
 
         created_posts = 0
         for post in BLOG_SEED:
@@ -237,7 +218,7 @@ def seed():
                 title=post["title"],
                 category=post["category"],
                 content=post["content"],
-                user_id=admin.id,
+                author_name="Temple Committee",
             ))
             created_posts += 1
 
@@ -257,7 +238,7 @@ def seed():
                 malayalam_day=ev["malayalam_day"],
                 nakshatram=ev["nakshatram"] or None,
                 location=ev["location"],
-                user_id=admin.id,
+                author_name="Temple Committee",
             ))
             created_events += 1
 

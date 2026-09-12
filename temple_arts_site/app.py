@@ -1,27 +1,15 @@
 from datetime import date
-from flask import Flask, render_template, redirect, url_for, flash, request, abort
-from flask_login import (
-    LoginManager, login_user, logout_user, login_required, current_user
-)
+from flask import Flask, render_template, redirect, url_for, flash, request
 
 from config import Config
-from models import db, User, BlogPost, TempleEvent
-from forms import RegisterForm, LoginForm, BlogPostForm, TempleEventForm
+from models import db, BlogPost, TempleEvent
+from forms import BlogPostForm, TempleEventForm
 from malayalam_calendar import approximate_malayalam_date
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
-
-login_manager = LoginManager(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Please log in to access this page."
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 
 # ---------- Public pages ----------
@@ -36,48 +24,6 @@ def index():
     )
     latest_posts = BlogPost.query.order_by(BlogPost.created_at.desc()).limit(5).all()
     return render_template("index.html", events=upcoming_events, posts=latest_posts)
-
-
-# ---------- Auth ----------
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-    form = RegisterForm()
-    if form.validate_on_submit():
-        if User.query.filter_by(email=form.email.data.lower()).first():
-            flash("An account with that email already exists.", "danger")
-            return render_template("register.html", form=form)
-        user = User(name=form.name.data, email=form.email.data.lower())
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash("Account created. Please log in.", "success")
-        return redirect(url_for("login"))
-    return render_template("register.html", form=form)
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            next_page = request.args.get("next")
-            return redirect(next_page or url_for("index"))
-        flash("Invalid email or password.", "danger")
-    return render_template("login.html", form=form)
-
-
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for("index"))
 
 
 # ---------- Blogs ----------
@@ -99,7 +45,6 @@ def blog_detail(post_id):
 
 
 @app.route("/blogs/new", methods=["GET", "POST"])
-@login_required
 def blog_new():
     form = BlogPostForm()
     if form.validate_on_submit():
@@ -107,7 +52,7 @@ def blog_new():
             title=form.title.data,
             content=form.content.data,
             category=form.category.data,
-            user_id=current_user.id,
+            author_name=form.author_name.data or "Temple Committee",
         )
         db.session.add(post)
         db.session.commit()
@@ -117,16 +62,14 @@ def blog_new():
 
 
 @app.route("/blogs/<int:post_id>/edit", methods=["GET", "POST"])
-@login_required
 def blog_edit(post_id):
     post = BlogPost.query.get_or_404(post_id)
-    if post.user_id != current_user.id and not current_user.is_admin:
-        abort(403)
     form = BlogPostForm(obj=post)
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
         post.category = form.category.data
+        post.author_name = form.author_name.data or post.author_name
         db.session.commit()
         flash("Blog post updated.", "success")
         return redirect(url_for("blog_detail", post_id=post.id))
@@ -134,11 +77,8 @@ def blog_edit(post_id):
 
 
 @app.route("/blogs/<int:post_id>/delete", methods=["POST"])
-@login_required
 def blog_delete(post_id):
     post = BlogPost.query.get_or_404(post_id)
-    if post.user_id != current_user.id and not current_user.is_admin:
-        abort(403)
     db.session.delete(post)
     db.session.commit()
     flash("Blog post deleted.", "info")
@@ -169,7 +109,6 @@ def malayalam_calendar_page():
 
 
 @app.route("/events/new", methods=["GET", "POST"])
-@login_required
 def event_new():
     form = TempleEventForm()
     suggestion = None
@@ -190,7 +129,7 @@ def event_new():
             malayalam_day=form.malayalam_day.data,
             nakshatram=form.nakshatram.data or None,
             location=form.location.data,
-            user_id=current_user.id,
+            author_name=form.author_name.data or "Temple Committee",
         )
         db.session.add(event)
         db.session.commit()
@@ -200,15 +139,13 @@ def event_new():
 
 
 @app.route("/events/<int:event_id>/edit", methods=["GET", "POST"])
-@login_required
 def event_edit(event_id):
     event = TempleEvent.query.get_or_404(event_id)
-    if event.user_id != current_user.id and not current_user.is_admin:
-        abort(403)
     form = TempleEventForm(obj=event)
     if form.validate_on_submit():
         form.populate_obj(event)
         event.nakshatram = form.nakshatram.data or None
+        event.author_name = form.author_name.data or event.author_name
         db.session.commit()
         flash("Temple event updated.", "success")
         return redirect(url_for("events"))
@@ -216,11 +153,8 @@ def event_edit(event_id):
 
 
 @app.route("/events/<int:event_id>/delete", methods=["POST"])
-@login_required
 def event_delete(event_id):
     event = TempleEvent.query.get_or_404(event_id)
-    if event.user_id != current_user.id and not current_user.is_admin:
-        abort(403)
     db.session.delete(event)
     db.session.commit()
     flash("Temple event deleted.", "info")
@@ -256,6 +190,10 @@ def create_tables():
         db.create_all()
 
 
+# Make sure tables exist even when started by a production server (e.g. gunicorn),
+# which does not run the __main__ block below.
+create_tables()
+
+
 if __name__ == "__main__":
-    create_tables()
     app.run(debug=True)
