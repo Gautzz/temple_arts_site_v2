@@ -23,7 +23,7 @@
     <tr>
       <td>{{ e.temple_name }}</td>
       <td>{{ e.title }}</td>
-      <td>{{ e.gregorian_date.strftime('%d %b %Y') }}</td>
+      <td>{{ e.gregorian_date.strftime('%d %b %Y') }}{% if e.end_date and e.end_date != e.gregorian_date %} &ndash; {{ e.end_date.strftime('%d %b %Y') }}{% endif %}</td>
       <td>{% if e.malayalam_month %}{{ e.malayalam_month }} {{ e.malayalam_day or '' }}{% else %}&mdash;{% endif %}</td>
       <td>{{ e.nakshatram or '&mdash;' | safe }}</td>
       <td>{{ e.location or '&mdash;' | safe }}</td>

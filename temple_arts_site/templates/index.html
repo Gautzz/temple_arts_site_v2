@@ -49,6 +49,7 @@
         <h3><a href="{{ url_for('events') }}">{{ e.title }}</a></h3>
         <p class="meta">
           {{ e.temple_name }}
+          {% if e.end_date and e.end_date != e.gregorian_date %} &middot; through {{ e.end_date.strftime('%d %b') }}{% endif %}
           {% if e.malayalam_month %} &middot; {{ e.malayalam_month }} {{ e.malayalam_day or '' }}{% endif %}
           {% if e.nakshatram %} &middot; {{ e.nakshatram }} star{% endif %}
         </p>

@@ -22,6 +22,10 @@
   {{ form.gregorian_date(id="gdate") }}
   <div class="meta" id="suggestion">{% if suggestion %}Suggested: {{ suggestion }}{% endif %}</div>
 
+  <label>{{ form.end_date.label }}</label>
+  {{ form.end_date() }}
+  <div class="meta">Leave blank for a single-day event.</div>
+
   <label>{{ form.malayalam_month.label }}</label>
   {{ form.malayalam_month() }}
 
